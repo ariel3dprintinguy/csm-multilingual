@@ -53,10 +53,11 @@ class LanguageProcessor:
             return FrenchProcessor()
         elif language_code.lower() == "es":
             return SpanishProcessor()
+        elif language_code.lower() == "he":
+            return HebrewProcessor()
         else:
             # Return default processor if language not specifically supported
             return LanguageProcessor(language_code, f"Unknown ({language_code})")
-
 
 class GermanProcessor(LanguageProcessor):
     """German language text processor"""
@@ -85,7 +86,6 @@ class GermanProcessor(LanguageProcessor):
             
         return text
 
-
 class EnglishProcessor(LanguageProcessor):
     """English language text processor"""
     
@@ -111,7 +111,6 @@ class EnglishProcessor(LanguageProcessor):
             
         return text
 
-
 class FrenchProcessor(LanguageProcessor):
     """French language text processor"""
     
@@ -136,7 +135,6 @@ class FrenchProcessor(LanguageProcessor):
             
         return text
 
-
 class SpanishProcessor(LanguageProcessor):
     """Spanish language text processor"""
     
@@ -156,6 +154,35 @@ class SpanishProcessor(LanguageProcessor):
         text = super().normalize_text(text)
         
         # Apply Spanish-specific replacements
+        for pattern, replacement in self.replacements:
+            text = re.sub(pattern, replacement, text)
+            
+        return text
+
+class HebrewProcessor(LanguageProcessor):
+    """Hebrew language text processor"""
+    
+    def __init__(self):
+        super().__init__("he", "Hebrew")
+        
+        # Hebrew-specific replacements
+        self.replacements = [
+            (r'(\d)\.(\d)', r'\1,\2'),  # Convert decimal points to commas
+            (r'וכו׳', 'וכולי'),         # "etc."
+            (r'ד״ר', 'דוקטור'),         # "Dr." to "Doctor"
+            (r'פרופ׳', 'פרופסור'),      # "Prof." to "Professor"
+            (r'עמ׳', 'עמוד'),           # "p." to "page"
+            (r'ש״ח', 'שקלים חדשים'),    # "NIS" to "New Shekels"
+            (r'לדוג׳', 'לדוגמה'),       # "e.g." to "for example"
+            (r'וכד׳', 'וכדומה'),        # "and similar"
+            (r'בד״כ', 'בדרך כלל'),      # "usually"
+        ]
+    
+    def normalize_text(self, text: str) -> str:
+        """Hebrew-specific text normalization"""
+        text = super().normalize_text(text)
+        
+        # Apply Hebrew-specific replacements
         for pattern, replacement in self.replacements:
             text = re.sub(pattern, replacement, text)
             
